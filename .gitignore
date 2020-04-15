@@ -1,0 +1,52 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+*.swp
+
+# react
+
+# dependencies
+trivia_react/node_modules
+trivia_react/.pnp
+trivia_react/.pnp.js
+
+# testing
+trivia_react/coverage
+
+# production
+trivia_react/build
+
+# misc
+trivia_react/.DS_Store
+trivia_react/.env.local
+trivia_react/.env.development.local
+trivia_react/.env.test.local
+trivia_react/.env.production.local
+
+trivia_react/npm-debug.log*
+trivia_react/yarn-debug.log*
+trivia_react/yarn-error.log*
+
+
+# webserver
+
+# dependencies
+trivia_server/node_modules
+trivia_server/.pnp
+trivia_server/.pnp.js
+
+# testing
+trivia_server/coverage
+
+# production
+trivia_server/build
+
+# misc
+trivia_server/.DS_Store
+trivia_server/.env.local
+trivia_server/.env.development.local
+trivia_server/.env.test.local
+trivia_server/.env.production.local
+
+trivia_server/npm-debug.log*
+trivia_server/yarn-debug.log*
+trivia_server/yarn-error.log*
