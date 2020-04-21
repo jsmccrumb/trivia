@@ -1,5 +1,5 @@
 import React from 'react';
-import ThemeContextProvider from './hooks/useTheme';
+import ThemeContextProvider from './../hooks/useTheme';
 
 const AppContext = ({children}) => {
   return (
