@@ -40,10 +40,11 @@ const SpecialRoundSetup = ({dispatch, roundInfo,}) => {
     </>
   );
 };
-const RoundSetup = ({gameName, dispatch, roundInfo, nextRound,}) => {
+const RoundSetup = ({gameName, dispatch, roundInfo, nextRound, deleteRound,}) => {
   const RoundComponent = roundInfo.isSpecial ? SpecialRoundSetup : NormalRoundSetup;
   return (
     <>
+    <Button onClick={() => deleteRound(roundInfo.name)}>Delete Round</Button>
       <Input name='gameName' label='Game Name' value={gameName} onChange={(e) => dispatch({type: 'setName', name: e.target.value})} />
       <h3>Edit {roundInfo.name}</h3>
       <RoundComponent dispatch={dispatch} roundInfo={roundInfo} />

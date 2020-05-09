@@ -15,7 +15,7 @@ const CreateGame = () => {
     setTabs(Object.values(gameState.rounds)
       .sort((a, b) => a.number - b.number)
       .map(round => round.name));
-  }, [gameState.isInitialized]);
+  }, [gameState.isInitialized, gameState.totalRounds, gameState.totalSpecialRounds]);
   const getNextRoundFunc = () => {
     const currentIndex = tabs.indexOf(currentTab);
     if (currentIndex === tabs.length - 1) return false;
@@ -33,6 +33,19 @@ const CreateGame = () => {
       }
     };
   };
+  const previousTab = () => {
+    const currentIndex = tabs.indexOf(currentTab);
+    if (currentIndex <= 0) {
+      setCurrentTab(SETUP);
+    } else {
+      setCurrentTab(tabs[currentIndex - 1]);
+    }
+  };
+  const deleteRound = (round) => {
+    previousTab();
+    dispatch({type: 'deleteRound', round});
+  };
+
   return (
     <GridLayout 
       rows='fit-content(50vh) auto'
@@ -53,7 +66,8 @@ const CreateGame = () => {
           <RoundSetup gameName={gameState.name}
             dispatch={dispatch}
             roundInfo={gameState.rounds[currentTab]}
-            nextRound={getNextRoundFunc()} />
+            nextRound={getNextRoundFunc()} 
+            deleteRound={deleteRound} />
         }
       </div>
     </GridLayout>

@@ -15,9 +15,15 @@ const createQuestion = ({category = '', question = '', answer = '', number = 1, 
   return {category, question, answer, points, number};
 };
 
-const createRound = ({currentRounds = 0, questionsPerRound = 3, name = null}) => {
+const nameRound = (number) => {
+  return `Round ${number}`;
+};
+
+const normalRoundRegex = /^Round \d+$/;
+
+const createRound = ({questionsPerRound = 3, number = 1, name = null}) => {
   // by default, just use setting from dc team trivia
-  const pointOptions = currentRounds < 3 ?
+  const pointOptions = number <= 3 ?
       Array.from({length: questionsPerRound}).map((_, idx) => 1 + idx * 2) :
       Array.from({length: questionsPerRound}).map((_, idx) => (1 + idx) * 2);
   const questions = Array.from({length: questionsPerRound}).reduce((acc, _, idx) => {
@@ -26,9 +32,9 @@ const createRound = ({currentRounds = 0, questionsPerRound = 3, name = null}) =>
     return acc;
   }, {});
   if (name === null) {
-    name = `Round ${currentRounds + 1}`;
+    name = nameRound(number);
   }
-  return {name, pointOptions, questions, number: currentRounds + 1};
+  return {name, pointOptions, questions, number};
 };
 
 export const templates = [
@@ -41,7 +47,7 @@ export const templates = [
     defaultWagerStyle: wagerStyles[0], // Maximum Value
     defaultScoringStyle: scoringStyles[1], // Limited Choice
     rounds: Array.from({length: 6}).reduce((acc, curr, idx) => {
-      const newRound = createRound({currentRounds: idx, questionsPerRound: 3});
+      const newRound = createRound({number: idx + 1, questionsPerRound: 3});
       acc[newRound.name] = newRound;
       return acc;
     }, { // initial accumulator for reducer are the special rounds
@@ -76,7 +82,7 @@ export const templates = [
     defaultScoringStyle: scoringStyles[0], // Fixed Value
     defaultWagerStyle: wagerStyles[0], // max value
     rounds: Array.from({length: 5}).reduce((acc, curr, idx) => {
-      const newRound = createRound({currentRounds: idx, questionsPerRound: 11})
+      const newRound = createRound({number: idx + 1, questionsPerRound: 11})
       newRound.questions.question11.max = idx === 4 ? 20 : 10;
       newRound.questions.question11.scoringStyle = scoringStyles[2]; // wager
       acc[newRound.name] = newRound;
@@ -88,6 +94,7 @@ export const templates = [
         question: '',
         answer: '',
         number: 1.5, // after round 1
+        isSpecial: true,
       },
       'Picture Round': {
         name: 'Picture Round',
@@ -95,6 +102,7 @@ export const templates = [
         question: '',
         answer: '',
         number: 2.5, // after round 2
+        isSpecial: true,
       },
       'Fill in the Blank': {
         name: 'Fill in the Blank',
@@ -102,6 +110,7 @@ export const templates = [
         question: '',
         answer: '',
         number: 3.5, // after round 3
+        isSpecial: true,
       },
       'Music Round': {
         name: 'Music Round',
@@ -109,6 +118,7 @@ export const templates = [
         question: '',
         answer: '',
         number: 4.5, // after round 4
+        isSpecial: true,
       },
     }),
   }
@@ -129,7 +139,7 @@ const reducer = (state, action) => {
     const missingRounds = state.totalRounds;
     const rounds = Array.from({length: missingRounds}).reduce((acc, _, idx) => {
       const newRound = createRound({
-        currentRounds: idx,
+        number: idx + 1,
         questionsPerRound: state.questionsPerRound
       });
       acc[newRound.name] = newRound;
@@ -174,6 +184,28 @@ const reducer = (state, action) => {
       },
     };
     return {...state, rounds: updatedRounds};
+  } else if (action.type === 'deleteRound') {
+    const deletedRound = state.rounds[action.round];
+    if (!deletedRound) {
+      return state;
+    } else if (deletedRound.isSpecial) {
+      const updatedRounds = {...state.rounds};
+      delete updatedRounds[action.round];
+      return {...state, rounds: updatedRounds, totalSpecialRounds: state.totalSpecialRounds - 1};
+    } else {
+      const updatedRounds = Object.entries(state.rounds).reduce((acc, [key, value]) => {
+        if (key === action.round) {
+          // don't add the deleted one
+        } else if (value.number > deletedRound.number) {
+          const name = normalRoundRegex.test(key) ? nameRound(value.number - 1) : key;
+          acc[name] = {...value, name, number: value.number - 1};
+        } else {
+          acc[key] = {...value};
+        }
+        return acc;
+      }, {});
+      return {...state, rounds: updatedRounds, totalRounds: state.totalRounds - 1};
+    }
   } else {
     return state;
   }
