@@ -1,4 +1,5 @@
 import React from 'react';
+import CreateGame from './pages/CreateGame';
 import {useThemeContext} from './../hooks/useTheme';
 
 function App() {
@@ -6,8 +7,8 @@ function App() {
   const mainBG = calculateColor('background');
   const text = calculateColor('text');
   return (
-    <div className={`bg-${mainBG} text-${text}`}>
-      Well now.
+    <div className={`bg-${mainBG} text-${text} w-screen h-screen`}>
+      <CreateGame />
     </div>
   );
 }
