@@ -37,6 +37,14 @@ const createRound = ({questionsPerRound = 3, number = 1, name = null}) => {
   return {name, pointOptions, questions, number};
 };
 
+const specialDefaults = {
+  scoringStyle: scoringStyles[0], // Fixed Value
+  description: 'Optional description to display',
+  question: '',
+  answer: '',
+  isSpecial: true,
+};
+
 export const templates = [
   {
     name: 'DC Team Trivia',
@@ -206,6 +214,29 @@ const reducer = (state, action) => {
       }, {});
       return {...state, rounds: updatedRounds, totalRounds: state.totalRounds - 1};
     }
+  } else if (action.type === 'insertRound') {
+    const afterNumber = state.rounds[action.round].number;
+    const number = Math.floor(afterNumber) + 1;
+    const newRound = createRound({number, questionsPerRound: state.questionsPerRound});
+    const updatedRounds = Object.entries(state.rounds).reduce((acc, [key, value]) => {
+      const updatedNumber = value.number > afterNumber ? value.number + 1 : value.number;
+      const name = normalRoundRegex.test(key) ? nameRound(updatedNumber) : key;
+      acc[name] = {...value, name, number: updatedNumber};
+      return acc;
+    }, {[newRound.name]: newRound});
+    return {...state, rounds: updatedRounds, totalRounds: state.totalRounds + 1};
+  } else if (action.type === 'insertSpecialRound') {
+    const name = action.name;
+    if (!name || normalRoundRegex.test(name) || !!state.rounds[name]) return state;
+    const insertAfter = state.rounds[action.round];
+    const nextNumber = Object.values(state.rounds)
+        .map(r => r.number)
+        .filter(num => num > insertAfter.number)
+        .sort((a, b) => a - b)[0] || Math.floor(insertAfter.number + 1);
+    const number = (insertAfter.number + nextNumber) / 2;
+    const newRound = {...specialDefaults, name, number,};
+    const updatedRounds = {...state.rounds, [name]: newRound};
+    return {...state, rounds: updatedRounds, totalSpecialRounds: state.totalSpecialRounds + 1};
   } else {
     return state;
   }

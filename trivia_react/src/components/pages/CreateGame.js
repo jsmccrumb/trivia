@@ -45,6 +45,14 @@ const CreateGame = () => {
     previousTab();
     dispatch({type: 'deleteRound', round});
   };
+  const insertRound = (round) => {
+    setCurrentTab(`Round ${Math.floor(gameState.rounds[round].number + 1)}`);
+    dispatch({type: 'insertRound', round});
+  };
+  const insertSpecialRound = (round, name) => {
+    setCurrentTab(name);
+    dispatch({type: 'insertSpecialRound', round, name});
+  };
 
   return (
     <GridLayout 
@@ -67,6 +75,8 @@ const CreateGame = () => {
             dispatch={dispatch}
             roundInfo={gameState.rounds[currentTab]}
             nextRound={getNextRoundFunc()} 
+            insertRound={insertRound}
+            insertSpecialRound={insertSpecialRound}
             deleteRound={deleteRound} />
         }
       </div>
